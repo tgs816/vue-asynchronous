@@ -1,0 +1,21 @@
+GET         /                              controllers.Home.index
+
+GET         /home                          controllers.Home.home
+
+
+GET         /currency                      controllers.Home.currency
+
+GET         /currencyAdd                   controllers.Home.currencyAddPage
+POST        /currencyAdd                   controllers.Home.currencyAdd
+
+GET         /currency/:id                  controllers.Home.currencyEditPage(id: String)
+
+GET        /currency/Edit/:id              controllers.Home.currencyEditOne(id: String)
+
+POST        /currency/Edit                 controllers.Home.currencyEdit
+
+GET         /currency/Delete/:id           controllers.Home.currencyDelete(id: String)
+
+GET         /assets/*file                  controllers.Assets.at(path="/public", file)
+
+GET         /:id                           controllers.Home.currencyEditSet(id:String)

@@ -1,0 +1,29 @@
+@(form: Form[_])(implicit messages: Messages)
+@fd(f: String) = {
+  <div class="fd">
+    <label>@messages(f)</label>
+    <input type="text" value="@form(f).value" name="@f"/>
+  </div>
+}
+@base () {
+<link rel="stylesheet" type="text/css" href="@routes.Assets.at("lib/Semantic-UI/semantic.css")"/>
+  } {
+
+<div>
+  <form class="ui form" action="@controllers.routes.Home.currencyEdit" method="POST">
+
+    @fd("currency_code")
+    @fd("currency_name")
+    @fd("currency_name_en")
+    @fd("is_active")
+
+    <button type="submit">수정하기</button>
+  </form>
+</div>
+  } {
+<script src="@routes.Assets.at("lib/jquery/jquery.min.js")"></script>
+<script src="@routes.Assets.at("lib/Semantic-UI/semantic.js")"></script>
+  }
+
+
+

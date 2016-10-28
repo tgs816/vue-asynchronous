@@ -1,0 +1,37 @@
+@(form: Form[_])(implicit messages: Messages)
+
+@field(f: String) = {
+  <div class="field">
+    <label>@messages(f)</label>
+    <input type="text" v-model="form.data['@f]" name="@f"/>
+  </div>
+}
+
+@base (){
+<link rel="stylesheet" type="text/css" href="@routes.Assets.at("lib/Semantic-UI/semantic.css")"/>
+} {
+
+<div id="app">
+  <h1> {{ message }}</h1>
+  <form class="ui form" action="@controllers.routes.Home.currencyAdd" method="post">
+
+    @field("currency_code")
+    @field("currency_name")
+    @field("currency_name_en")
+    @field("currency_symbol")
+    @field("is_active")
+
+    <button type="submit">추가등록하기</button>
+  </form>
+</div>
+} {
+
+<script src="@routes.Assets.at("lib/jquery/jquery.min.js")"></script>
+<script src="@routes.Assets.at("lib/Semantic-UI/semantic.js")"></script>
+<script>
+
+
+
+
+</script>
+}

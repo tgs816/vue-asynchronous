@@ -1,0 +1,5 @@
+currency_code    = 통화코드
+currency_name    = 통화명
+currency_name_en = 통화명(영문)
+currency_symbol  = 통화기호
+is_active        = 활성화여부

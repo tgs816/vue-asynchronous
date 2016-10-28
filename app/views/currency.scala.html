@@ -1,0 +1,36 @@
+@(currencyList: Seq[models.Currency])
+
+<link rel="stylesheet" type="text/css" href="@routes.Assets.at("lib/Semantic-UI/semantic.css")"/>
+
+<table class="ui celled table">
+  <thead>
+    <tr>
+      <th>Header</th>
+      <th>Header</th>
+      <th>Header</th>
+      <th>수정</th>
+      <th>삭제</th>
+    </tr>
+  </thead>
+  <tbody>
+    @currencyList.map { currency =>
+      <tr>
+        <td>@currency.currencyCode</td>
+        <td>@currency.currencyName</td>
+        <td>@currency.currencyNameEn</td>
+        <td><a href="@routes.Home.currencyEditPage(currency.currencyCode)">수정하기</a></td>
+        <td><a href="@routes.Home.currencyDelete(currency.currencyCode)">삭제하기</a></td>
+      </tr>
+    }
+  </tbody>
+</table>
+  <a href="@routes.Home.currencyAddPage">추가하기</a>
+
+<script src="@routes.Assets.at("lib/vue/vue.js")"></script>
+<script src="@routes.Assets.at("lib/Semantic-UI/semantic.js")"></script>
+<script>
+
+
+</script>
+
+

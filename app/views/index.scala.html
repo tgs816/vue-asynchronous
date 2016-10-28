@@ -1,0 +1,336 @@
+@(form: Form[_])(implicit messages: Messages)
+
+
+<!DOCTYPE html>
+@field(f: String) = {
+  <div class="field">
+    <label>@messages(f)</label>
+
+  </div>
+
+  @*<div class="field">
+    <label>@messages</label>
+    <input type="text" name="@f" placeholder="form.data['@f']">
+  </div>*@
+
+}
+
+<html>
+  <head>
+    <title></title>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("lib/Semantic-UI/semantic.css")"/>
+  </head>
+
+<body>
+
+<div id="app">
+  <router-view></router-view>
+
+  <template id="l-temp">
+
+    <div class="row">
+      <div class="ui secondary  menu">
+        <a class="active item" v-link="{ path: '/' }">홈으로</a>
+        <a class="active item" v-link="{ path: '/add' }">추가하기</a>
+      </div>
+    </div>
+
+    <div class="ui grid">
+
+        @*왼쪽 폼 크기: 4 *@
+      <div class="four wide column">
+        <div class="ui relaxed divided list">
+          <div class="item" v-for="item in data.cyList">
+            <i class="large github middle aligned icon"></i>
+            <div class="content">
+              <a class="header">
+
+                <a class="ui button" v-link="{ name: 'keyValue', params: {currencyCode : item.currencyCode} }"> {{ item.currencyCode }} </a>
+
+
+                <button v-on:click="delCodes(item.currencyCode)"> x </button>
+
+              </a>
+              <div class="description">{{ item.currencyName }} {{ item.currencyNameEn }} {{ item.currencySymbol }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <router-view></router-view>
+  </template>
+  <template id="r-temp">
+    @*오른쪽 폼 크기: 12*@
+    <div class="twelve wide column">
+      <form name="jacks" v-el:c-form class="ui form">
+        @field("currency_code")
+        @defining("data.one.currencyCode") { f =>
+          <input v-model="@f" type="text" value="{{ @f }}" name="currency_code"/>
+        }
+        @field("currency_name")
+        @defining("data.one.currencyName") { f =>
+          <input v-model="@f" type="text" value="{{ @f }}" name="currency_name"/>
+        }
+        @field("currency_name_en")
+        @defining("data.one.currencyNameEn") { f =>
+          <input v-model="@f" type="text" value="{{ @f }}" name="currency_name_en"/>
+        }
+        @field("currency_symbol")
+        @defining("data.one.currencySymbol") { f =>
+          <input v-model="@f" type="text" value="{{ @f }}" name="currency_symbol"/>
+        }
+        @field("is_active")
+        @defining("data.one.isActive") { f =>
+          <input v-model="@f" type="text" value="{{ @f }}" name="is_active"/>
+        }
+        <div class="ui button" v-on:click="sbmBtn()">Submit</div>
+      </form>
+    </div>
+  </template>
+  </div>
+
+</div>
+
+
+  <script src="@routes.Assets.at("lib/jquery/jquery.min.js")"></script>
+  <script src="@routes.Assets.at("lib/Semantic-UI/semantic.js")"></script>
+  <script src="@routes.Assets.at("lib/vue/vue.js")"></script>
+  <script src="@routes.Assets.at("lib/vue-router/dist/vue-router.js")"></script>
+  <script src="@routes.Assets.at("lib/vue-resource/vue-resource.js")"></script>
+
+  <script>
+  var router = new VueRouter();
+
+  var obj = {
+              route: {
+                data(a) {
+                  var urlData = this.$route.params.currencyCode;
+                  console.log("urlData 값 : "+urlData);
+                  var name = a.to.name;
+
+                  console.log("to에서 받은 name :"+name);
+                    // url이 /추가 일 때
+                    if(name == "add"){
+                      console.log("route add일 때 url path : "+name)
+                      this.$set('data.one', {});
+                      this.$set('data.url', name);
+
+                    } else {
+                    // url이 /수정 일 때
+                      var urlData = this.$route.params.currencyCode;
+                      console.log("url edit일 때 path :"+name);
+                      this.$set('data.url', name);
+                      // 값 -> 우측폼 셋팅!
+                      this.formDataSet(urlData);
+                    }
+                }
+              },
+              template: '#r-temp',
+              data() { return { data:{ one:{}, url: "" } } },
+              methods: {
+                //오른쪽 폼 페치
+                fetchs() {
+                  this.$http.get('/currency').then((response) => {
+                    console.log("fetch");
+                    console.log(response.data);
+                    this.$set('data.one', response.data);
+                  }, (response) => {
+                    console.log("fetch호출 실패");
+                    console.log(response.status);
+                    console.log(response.statusText);
+                });
+                },
+
+                //폼 -> 데이터 셋팅
+                formDataSet(urlData){
+                  this.$http.get('/currency/Edit/'+urlData).then((response) => {
+                    this.$set('data.one', response.data);
+                  }, (response) => {
+                      console.log("우측 데이터 셋팅 실패");
+                  });
+                },
+
+                // form to object type casting
+                fto() {
+                //serializeObject 만드는 serializeObject()
+                  $.fn.serializeObject = function() {
+                    var o = {};
+                    var a = this.serializeArray();
+                      $.each(a, function() {
+                      if (o[this.name]) {
+                        if (!o[this.name].push) {
+                          o[this.name] = [o[this.name]];
+                        }
+                          o[this.name].push(this.value || '');
+                      } else {
+                          o[this.name] = this.value || '';
+                       }
+                     });
+                     return o;
+                  };
+                },
+
+                //추가 & 수정하기
+                sbmBtn() {
+                         //조건식이 참이면 /currencyAdd를 거짓이면 /currency/Edit
+                  var url = (this.data.url) == 'add' ? "/currencyAdd" : "/currency/Edit";
+
+                  /*if((this.data.url) != 'add') {*/
+
+                    console.log("수정 조건문"+name)
+                    this.fto();
+                    var ifo = $('form').serializeObject();
+                    console.log(ifo);
+                    console.log(url);
+                    this.$http.post(url, ifo).then((response) => {
+                      console.log("form data input success!");
+                      console.log(response.data);
+                      this.$parent.fetch();
+                      },(response) => {
+                      console.log("form data input fail!")
+                    })
+                  /*} else {
+                    console.log("추가하기의 path인지 확인하는 값 : "+this.data.url);
+                    // 추가일 때
+                    console.log("추가 조건문")
+                    this.fto();
+                    var ifo = $('form').serializeObject();
+                    this.$http.post('/currencyAdd', ifo).then((response) => {
+                      console.log("form data input success!");
+                      console.log(response.data);
+                      this.$parent.fetch();
+                      this.$set('data.one', {})
+                      },(response) => {
+                      console.log("form data input fail!")
+                    });
+                  }*/
+                }
+              },
+              ready() {
+                console.log("r-temp 정의한 객체 실행")
+              }
+            }
+
+    router.map({
+      '/' : {
+        component: {
+          template: '#l-temp',
+          data() { return { data: { cyList:{}, one:{} } } },
+          methods: {
+            //리프레시 함수정의
+            fetch() {
+              this.$http.get('/currency').then((response) => {
+                console.log("fetch")
+                console.log(response.data);
+                this.$set('data.cyList', response.data);
+
+              }, (response) => {
+                console.log("fetch호출 실패")
+                console.log(response.status)
+                console.log(response.statusText)
+              });
+            },
+
+            // 리스트 삭제하기
+            delCodes(currencyCode) {
+              console.log("삭제할 리스트 키값 : "+currencyCode);
+              this.$http.get('/currency/Delete/'+currencyCode).then((response) => {
+                console.log("삭제 성공")
+                console.log(response.data)
+                // fetch 호출하면 깔끔하게 리스트도 리프레쉬된다
+                this.fetch();
+              }, (response) => {
+                console.log("삭제 실패")
+                console.log(response.status);
+                console.log(response.statusText);
+              });
+            }
+          },
+          ready() {
+           //레디에서 바로 훅해서 fetch호출함
+           this.fetch();
+          }
+        },
+        subRoutes: {
+          '/add': {
+          name: "add",
+            component: obj
+          },
+          '/:currencyCode': {
+          name: "keyValue",
+            component: obj,
+          }
+        }
+      }
+
+      /*'/add' : {
+        component: {
+          template: '#temp',
+          data() { return { data: { cyList:{}, one:{} } } },
+          methods: {
+
+
+            cCodes(currencyCode) {
+              path : '/currencyEdit'+currencyCode;
+            }
+          },
+          ready() {
+          this.fetch();
+          }
+        }
+      },
+
+      '/:currencyCode':{
+        component:{
+          template: '#r-temp',
+          data() { return { data: { cyList:{}, one:{} } } },
+          methods: {
+            fetch() {
+              this.$http.get('/currency').then((response) => {
+                console.log("fetch")
+                console.log(response.data);
+                this.$set('data.cyList', response.data);
+              }, (response) => {
+                console.log("fetch호출 실패")
+                console.log(response.status)
+                console.log(response.statusText)
+              });
+            },
+            dataSetting(cyData) {
+              this.$http.get('/'+cyData).then((response) => {
+              console.log("url data 셋팅 성공")
+              this.$set('data.one', response.data)
+              }, (response) => {
+                console.log("data 셋팅 실패")
+                console.log(response.status)
+                console.log(response.statusText)
+              });
+            }
+
+           /!* this.$http.get('/currency/Edit/'+currencyCode).then((response) => {
+              console.log("key값을 폼으로 성공")
+            },(response) => {
+              console.log("실패!")
+            });*!/
+          },
+          ready() {
+            console.log("key 값으로 들어왓다")
+            var cyData = this.$route.params.currencyCode;
+            console.log(cyData);
+            this.fetch();
+            this.dataSetting(cyData);
+            subcCode();
+          }
+        }
+      }*/
+
+    });
+
+    router.start({}, '#app')
+  </script>
+</body>
+
+
+</html>
