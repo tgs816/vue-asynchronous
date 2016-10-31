@@ -15,6 +15,7 @@
     <title></title>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="@routes.Assets.at("lib/Semantic-UI/semantic.css")"/>
+
   </head>
 <body>
 <div id="app">
@@ -33,7 +34,7 @@
           <div class="item" v-for="item in data.cyList">
             <i class="large github middle aligned icon"></i>
             <div class="content">
-              <a class="header">
+              <a id="cylist" class="header">
                 <a class="ui button" v-link="{ name: 'keyValue', params: {currencyCode : item.currencyCode} }"> {{ item.currencyCode }} </a>
                 <button v-on:click="delCodes(item.currencyCode)"> x </button>
               </a>
@@ -73,20 +74,24 @@
     </div>
   </template>
   </div>
+  <div id="test">
+
+  </div>
 </div>
+  <script type="text/javascript" src="@routes.Javascript.javascriptRoutes"></script>
   <script src="@routes.Assets.at("lib/jquery/jquery.min.js")"></script>
   <script src="@routes.Assets.at("lib/Semantic-UI/semantic.js")"></script>
   <script src="@routes.Assets.at("lib/vue/vue.js")"></script>
   <script src="@routes.Assets.at("lib/vue-router/dist/vue-router.js")"></script>
   <script src="@routes.Assets.at("lib/vue-resource/vue-resource.js")"></script>
+
   <script>
   var router = new VueRouter();
-
   var obj = {
     route: {
       data(a) {
-        var urlData = this.$route.params.currencyCode;
-        console.log("urlData 값 : "+urlData);
+        var urlOneData = this.$route.params.currencyCode;
+        console.log("urlData 값 : "+urlOneData);
         var name = a.to.name;
         console.log("to에서 받은 name :"+name);
           // url이 /추가 일 때
@@ -109,7 +114,7 @@
     methods: {
       //오른쪽 폼 페치
       fetchs() {
-        this.$http.get('/currency').then((response) => {
+        this.$http.get(jsRoutes.controllers.Home.currency().url).then((response) => {
           console.log("fetch");
           console.log(response.data);
           this.$set('data.one', response.data);
@@ -120,11 +125,12 @@
       });
       },
       //폼 -> 데이터 셋팅
-      formDataSet(urlData){
-        this.$http.get('/currency/Edit/'+urlData).then((response) => {
+      formDataSet(urlOneData){
+        this.$http.get(jsRoutes.controllers.Home.currencyEditOne(urlOneData).url).then((response) => {
           this.$set('data.one', response.data);
         }, (response) => {
             console.log("우측 데이터 셋팅 실패");
+            console.log("요청에 실패한 url : "+jsRoutes.controllers.Home.currencyEditOne(urlOneData).url);
         });
       },
       // form to object type casting
@@ -148,14 +154,14 @@
       },
       //추가 & 수정하기
       sbmBtn() {
-               //조건식이 참이면 /currencyAdd를 거짓이면 /currency/Edit
-        var url = (this.data.url) == 'add' ? "/currencyAdd" : "/currency/Edit";
-        /*if((this.data.url) != 'add') {*/
-          console.log("수정 조건문"+name)
           this.fto();
           var ifo = $('form').serializeObject();
           console.log(ifo);
+               //조건식이 참이면 /currencyAdd를 거짓이면 /currency/Edit
+        var url = (this.data.url) == 'add' ? jsRoutes.controllers.Home.currencyAdd().url : jsRoutes.controllers.Home.currencyEdit().url;
+        /*if((this.data.url) != 'add') {*/
           console.log(url);
+          console.log("수정 조건문"+name);
           this.$http.post(url, ifo).then((response) => {
             console.log("form data input success!");
             console.log(response.data);
@@ -192,29 +198,41 @@
         methods: {
           //리프레시 함수정의
           fetch() {
-            this.$http.get('/currency').then((response) => {
-              console.log("fetch")
+          var r = jsRoutes.controllers.Home.currency();
+
+          $.ajax({
+            url : r.url,
+            type : r.type,
+            success : (aList) => {
+               console.log("데이터 확인중")
+               console.log("왼쪽 목록에 셋팅할 데이터가 있는 주소 : "+r.url);
+               console.log("ajax 요청 : "+aList);
+               this.$set('data.cyList', aList);
+            }
+          });
+            /*this.$http.get(jsRoutes.controllers.Home.currency().url).then((response) => {
+              console.log("fetch");
               console.log(response.data);
               this.$set('data.cyList', response.data);
 
             }, (response) => {
-              console.log("fetch호출 실패")
-              console.log(response.status)
-              console.log(response.statusText)
-            });
+              console.log("fetch호출 실패");
+              console.log(response.status);
+              console.log(response.statusText);
+            });*/
           },
           // 리스트 삭제하기
           delCodes(currencyCode) {
+
             console.log("삭제할 리스트 키값 : "+currencyCode);
-            this.$http.get('/currency/Delete/'+currencyCode).then((response) => {
-              console.log("삭제 성공")
-              console.log(response.data)
+            this.$http.get(jsRoutes.controllers.Home.currencyDelete(currencyCode).url).then((response) => {
+              console.log("삭제 성공");
+              console.log("요청한 성공 url : "+jsRoutes.controllers.Home.currencyDelete(currencyCode).url);
               // fetch 호출하면 깔끔하게 리스트도 리프레쉬된다
               this.fetch();
             }, (response) => {
-              console.log("삭제 실패")
-              console.log(response.status);
-              console.log(response.statusText);
+              console.log("삭제 실패");
+
             });
           }
         },

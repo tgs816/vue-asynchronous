@@ -5,8 +5,11 @@ import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller}
+import play.api.routing.JavaScriptReverseRouter
+
 
 class Home @Inject()(val messagesApi: MessagesApi, currencyDao: dao.currencyDao) extends Controller with I18nSupport {
+
 
   def index = Action { implicit request =>
     Ok(views.html.index(forms.Currency.currency(isAdd = true)))
@@ -21,6 +24,7 @@ class Home @Inject()(val messagesApi: MessagesApi, currencyDao: dao.currencyDao)
     Ok(views.html.currencyAdd(forms.Currency.currency(isAdd = true)))
   }
 
+  // POST -> 데이터 추가하기
   def currencyAdd = Action { implicit request =>
     forms.Currency.currency(isAdd = true).bindFromRequest.fold(
       formWithErrors => BadRequest(formWithErrors.errorsAsJson), {
@@ -39,7 +43,6 @@ class Home @Inject()(val messagesApi: MessagesApi, currencyDao: dao.currencyDao)
   }
 
   // POST -> 데이터 수정하기
-
   def currencyEdit = Action { implicit request =>
     forms.Currency.currency(isAdd = false).bindFromRequest.fold(
       formWithErrors => BadRequest(formWithErrors.errorsAsJson), {
@@ -78,6 +81,15 @@ class Home @Inject()(val messagesApi: MessagesApi, currencyDao: dao.currencyDao)
       case _ => BadRequest
     }
   }
+
+  /*// javaScript router
+    def javascriptRoutes = Action { implicit request =>
+    Ok(JavaScriptReverseRouter("jsRoutes")(
+      routes.javascript.Home.index
+    )
+    ).as("text/javascript");
+    /*).as(JAVASCRIPT);*/
+  }*/
 
 
 }
