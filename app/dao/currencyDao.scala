@@ -1,5 +1,6 @@
 package dao
 
+import java.io.FileInputStream
 import javax.inject.Inject
 
 import anorm._
@@ -69,4 +70,17 @@ class currencyDao @Inject() (db:Database) {
       """.executeUpdate()
     }
   }
+
+  def imgAdd(form: models.Currency, img: Option[java.io.File]) = {
+    db.withConnection { implicit c =>
+      img.foreach { file =>
+        SQL"""
+         INSERT INTO "currency"("currency_code", "currency_sign")
+         VALUES(${form.currencyCode}, ${new FileInputStream(file)})
+      """.executeUpdate
+      }
+    }
+  }
+
+
 }

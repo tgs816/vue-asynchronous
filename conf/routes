@@ -23,4 +23,7 @@ GET          /javascriptRoutes             controllers.Javascript.javascriptRout
 GET          /:id                          controllers.Home.currencyEditSet(id:String)
 
 
+POST         /                             controllers.Application.upload
+
+
 GET          /assets/*file                 controllers.Assets.at(path="/public", file)

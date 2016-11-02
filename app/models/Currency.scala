@@ -9,7 +9,8 @@ case class Currency (
   currencyName   : String,
   currencyNameEn : Option[String],
   currencySymbol : Option[String],
-  isActive       : Boolean
+  isActive       : Boolean,
+  currencySign   : Option[Seq[Byte]]
 )
 
 object Currency {
@@ -18,9 +19,10 @@ object Currency {
     get[String]("currency_name") ~
     get[Option[String]]("currency_name_en") ~
     get[Option[String]]("currency_symbol") ~
-    get[Boolean]("is_active") map { case
-      currencyCode ~ currencyName ~ currencyNameEn ~ currencySymbol ~ isActive => Currency(
-        currencyCode, currencyName, currencyNameEn, currencySymbol, isActive
+    get[Boolean]("is_active") ~
+    get[Option[Array[Byte]]]("currency_sign") map { case
+      currencyCode ~ currencyName ~ currencyNameEn ~ currencySymbol ~ isActive ~ currencySign => Currency(
+        currencyCode, currencyName, currencyNameEn, currencySymbol, isActive, currencySign.map(_.toSeq)
       )
     }
   }

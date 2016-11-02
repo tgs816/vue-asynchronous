@@ -2,10 +2,16 @@ package controllers
 
 import javax.inject.Inject
 
+
+import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
+
+
 import play.api.mvc.{Action, Controller}
 import play.api.routing.JavaScriptReverseRouter
+
+import views.html.helper.form
 
 
 class Home @Inject()(val messagesApi: MessagesApi, currencyDao: dao.currencyDao) extends Controller with I18nSupport {
@@ -28,11 +34,11 @@ class Home @Inject()(val messagesApi: MessagesApi, currencyDao: dao.currencyDao)
   def currencyAdd = Action { implicit request =>
     forms.Currency.currency(isAdd = true).bindFromRequest.fold(
       formWithErrors => BadRequest(formWithErrors.errorsAsJson), {
-      case currencyForm => currencyDao.insert(currencyForm) match {
-        case 1 => Ok(views.html.currency(currencyDao.select))
-        case _ => BadRequest
+        case currencyForm => currencyDao.insert(currencyForm) match {
+          case 1 => Ok(views.html.currency(currencyDao.select))
+          case _ => BadRequest
+        }
       }
-    }
     )
   }
 
@@ -82,6 +88,8 @@ class Home @Inject()(val messagesApi: MessagesApi, currencyDao: dao.currencyDao)
     }
   }
 
+
+
   /*// javaScript router
     def javascriptRoutes = Action { implicit request =>
     Ok(JavaScriptReverseRouter("jsRoutes")(
@@ -90,6 +98,10 @@ class Home @Inject()(val messagesApi: MessagesApi, currencyDao: dao.currencyDao)
     ).as("text/javascript");
     /*).as(JAVASCRIPT);*/
   }*/
+
+
+
+
 
 
 }

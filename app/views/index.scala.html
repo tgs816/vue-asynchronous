@@ -15,7 +15,6 @@
     <title></title>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="@routes.Assets.at("lib/Semantic-UI/semantic.css")"/>
-
   </head>
 <body>
 <div id="app">
@@ -27,27 +26,38 @@
         <a class="active item" v-link="{ path: '/add' }">추가하기</a>
       </div>
     </div>
+
     <div class="ui grid">
         @*왼쪽 폼 크기: 4 *@
-      <div class="four wide column">
+      <div class="five wide column">
         <div class="ui relaxed divided list">
+
           <div class="item" v-for="item in data.cyList">
             <i class="large github middle aligned icon"></i>
             <div class="content">
-              <a id="cylist" class="header">
+
+              <a class="header">
                 <a class="ui button" v-link="{ name: 'keyValue', params: {currencyCode : item.currencyCode} }"> {{ item.currencyCode }} </a>
-                <button v-on:click="delCodes(item.currencyCode)"> x </button>
+                  <button v-on:click="delCodes(item.currencyCode)"> x </button>
+                <div class="description">{{ item.currencyName }} {{ item.currencyNameEn }} {{ item.currencySymbol }}</div>
+
+                @helper.form(action = routes.Application.upload, 'enctype -> "multipart/form-data") {
+                  <input type="file" name="picture">
+                  <button v-on:click="addBtn(item.currencyCode)">제출</button>
+
+                }
               </a>
-              <div class="description">{{ item.currencyName }} {{ item.currencyNameEn }} {{ item.currencySymbol }}</div>
+
             </div>
           </div>
+
         </div>
       </div>
     <router-view></router-view>
   </template>
   <template id="r-temp">
     @*오른쪽 폼 크기: 12*@
-    <div class="twelve wide column">
+    <div class="eleven wide column">
       <form name="jacks" v-el:c-form class="ui form">
         @field("currency_code")
         @defining("data.one.currencyCode") { f =>
@@ -69,6 +79,8 @@
         @defining("data.one.isActive") { f =>
           <input v-model="@f" type="text" value="{{ @f }}" name="is_active"/>
         }
+
+
         <div class="ui button" v-on:click="sbmBtn()">Submit</div>
       </form>
     </div>
@@ -234,7 +246,12 @@
               console.log("삭제 실패");
 
             });
+          },
+          fBtn(currencyCode) {
+            console.log("업로드 눌렷다");
+            console.log(currencyCode);
           }
+
         },
         ready() {
          //레디에서 바로 훅해서 fetch호출함
